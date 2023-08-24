@@ -1,5 +1,6 @@
 #! /usr/bin/env node
-var fs = require('fs');
+const fs = require('fs');
+const fse = require('fs-extra');
 const { exec, execSync } = require('child_process');
 const clc = require('cli-color');
 const path = require('path');
@@ -47,10 +48,10 @@ const selectStructure = () => {
 
     switch (structure) {
         case '1':
-            return 1;
+            return "web";
             break;
         case '2':
-            return 2;
+            return "react";
             break;
         default:
             console.log(clc.red('Unknown structure, enter again'));
@@ -69,10 +70,15 @@ const createProject = (name, structure) => {
         execSync(
             'cd ' +
                 process.cwd() +
-                ' && git clone https://github.com/ShizzaHo/helium-create-app'
+                ' && git clone https://github.com/Helium-project/helium-application-structure'
         );
+
+        fse.copySync(path.join(process.cwd(), 'helium-application-structure', structure), path.join(process.cwd(), 'helium-application-structure'));
+        fs.rmSync(path.join(process.cwd(), 'helium-application-structure', 'web'), { recursive: true, force: true });
+        fs.rmSync(path.join(process.cwd(), 'helium-application-structure', 'react'), { recursive: true, force: true });
+
         fs.renameSync(
-            path.join(process.cwd(), 'helium-create-app'),
+            path.join(process.cwd(), 'helium-application-structure'),
             path.join(process.cwd(), name)
         );
 
@@ -82,7 +88,7 @@ const createProject = (name, structure) => {
         fs.rmSync(path.join(process.cwd(), name, 'package.json'));
         fs.writeFileSync(
             path.join(process.cwd(), name, 'package.json'),
-            packageFile.replaceAll('helium-create-app', name)
+            packageFile.replaceAll('helium-application-structure', name)
         );
 
         console.log('Dependency setup...');
@@ -90,7 +96,9 @@ const createProject = (name, structure) => {
         execSync(
             'cd ' +
                 path.join(process.cwd(), name) +
-                ' && npm install && npm install https://github.com/ShizzaHo/Helium'
+                ' && npm install && npm install https://github.com/Helium-project/Helium'
         );
+
+        console.log(clc.cyanBright(`Happiness for all, for free, and so that no one's left offended`));
     }, 1000);
 };
